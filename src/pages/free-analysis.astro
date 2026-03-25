@@ -1,0 +1,643 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Free Google Maps Analysis — SupraReach Marketing" description="Find out exactly why your competitors rank above you on Google Maps. Free analysis, no strings attached.">
+
+<style>
+/* =============================================
+   QUIZ PAGE STYLES
+   ============================================= */
+.quiz-page {
+  min-height: 100vh;
+  background: var(--canvas);
+  padding-top: 64px;
+}
+
+/* Header bar */
+.quiz-header {
+  background: var(--black);
+  padding: 28px 24px;
+  position: relative;
+}
+.quiz-header-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.quiz-logo {
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  text-decoration: none;
+}
+.quiz-logo .r { color: var(--red); }
+.quiz-back {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.quiz-back:hover { color: var(--white); }
+
+/* Progress bar */
+.quiz-progress-wrap {
+  background: var(--black);
+  padding: 0 24px 20px;
+}
+.quiz-progress-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.quiz-progress-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--red);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0%;
+}
+.quiz-progress-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-top: 10px;
+  display: block;
+}
+
+/* Main quiz container */
+.quiz-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+
+/* Step */
+.quiz-step {
+  display: none;
+  animation: stepIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.quiz-step.active { display: block; }
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.quiz-step-num {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quiz-step-num::before {
+  content: '';
+  width: 20px;
+  height: 1.5px;
+  background: var(--red);
+}
+.quiz-question {
+  font-family: var(--display);
+  font-size: clamp(36px, 7vw, 56px);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+.quiz-subtext {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--stone);
+  margin-bottom: 40px;
+}
+
+/* Option cards */
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.quiz-option::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: var(--red);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.quiz-option:hover {
+  border-color: var(--ink);
+  transform: translateX(4px);
+}
+.quiz-option:hover::after,
+.quiz-option.selected::after {
+  width: 3px;
+}
+.quiz-option.selected {
+  border-color: var(--red);
+  background: rgba(212,43,43,0.04);
+}
+.quiz-option-letter {
+  font-family: var(--display);
+  font-size: 20px;
+  color: var(--rule);
+  flex-shrink: 0;
+  width: 28px;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 1;
+}
+.quiz-option:hover .quiz-option-letter,
+.quiz-option.selected .quiz-option-letter {
+  color: var(--red);
+}
+.quiz-option-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  position: relative;
+  z-index: 1;
+}
+.quiz-option-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--stone);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Contact form step */
+.quiz-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.form-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.form-input {
+  padding: 16px 18px;
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  font-family: var(--body);
+  font-size: 15px;
+  color: var(--ink);
+  transition: border-color 0.2s;
+  outline: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+.form-input:focus {
+  border-color: var(--ink);
+}
+.form-input::placeholder { color: var(--stone); }
+
+.quiz-fine-print {
+  font-size: 11px;
+  color: var(--stone);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+/* Nav buttons */
+.quiz-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 40px;
+  gap: 16px;
+}
+.quiz-btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--red);
+  color: var(--white);
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 18px 36px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.quiz-btn-next:hover {
+  background: #b82424;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212,43,43,0.3);
+}
+.quiz-btn-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.quiz-btn-back {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stone);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+.quiz-btn-back:hover { color: var(--ink); }
+
+/* Trust strip */
+.quiz-trust {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.trust-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+/* Success state */
+.quiz-success {
+  display: none;
+  text-align: center;
+  padding: 40px 0;
+  animation: stepIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.quiz-success.active { display: block; }
+.success-icon {
+  width: 72px; height: 72px;
+  background: rgba(212,43,43,0.1);
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 28px;
+}
+.success-icon svg {
+  width: 28px; height: 28px;
+  stroke: var(--red);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.success-headline {
+  font-family: var(--display);
+  font-size: clamp(40px, 8vw, 68px);
+  line-height: 0.9;
+  color: var(--black);
+  margin-bottom: 16px;
+}
+.success-headline .r { color: var(--red); }
+.success-body {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--stone);
+  max-width: 440px;
+  margin: 0 auto 36px;
+}
+.success-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.success-back:hover { color: var(--red); }
+
+/* Nav override for quiz page */
+.nav { background: transparent !important; }
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .quiz-main { padding: 40px 20px 60px; }
+  .quiz-question { font-size: clamp(32px, 10vw, 44px); }
+}
+</style>
+
+<!-- Hidden nav spacer -->
+<nav class="nav" id="nav" style="background: #0A0A0A;">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo"><span class="nav-logo-main"><span class="r">SUPRA</span>REACH</span><sub class="nav-logo-sub">Marketing</sub></a>
+  </div>
+</nav>
+
+<div class="quiz-page">
+
+  <!-- Progress header -->
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-inner">
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="progressFill"></div>
+      </div>
+      <span class="quiz-progress-label" id="progressLabel">Step 1 of 3</span>
+    </div>
+  </div>
+
+  <div class="quiz-main">
+
+    <!-- STEP 1: Business Type -->
+    <div class="quiz-step active" id="step1">
+      <div class="quiz-step-num">Question 1 of 3</div>
+      <h1 class="quiz-question">What kind of<br>business do you run?</h1>
+      <p class="quiz-subtext">This helps us understand what ranking factors matter most for your industry.</p>
+      <div class="quiz-options" id="options1">
+        <div class="quiz-option" data-value="Restaurant / Food & Beverage">
+          <span class="quiz-option-letter">A</span>
+          <span class="quiz-option-text">Restaurant / Food & Beverage<span class="quiz-option-sub">Dine-in, takeout, catering, food trucks</span></span>
+        </div>
+        <div class="quiz-option" data-value="Retail / Shop">
+          <span class="quiz-option-letter">B</span>
+          <span class="quiz-option-text">Retail / Shop<span class="quiz-option-sub">Clothing, gifts, hardware, specialty goods</span></span>
+        </div>
+        <div class="quiz-option" data-value="Service Business">
+          <span class="quiz-option-letter">C</span>
+          <span class="quiz-option-text">Service Business<span class="quiz-option-sub">Plumbing, HVAC, cleaning, landscaping, auto</span></span>
+        </div>
+        <div class="quiz-option" data-value="Health & Wellness">
+          <span class="quiz-option-letter">D</span>
+          <span class="quiz-option-text">Health & Wellness<span class="quiz-option-sub">Med spa, dental, chiropractic, gym, salon</span></span>
+        </div>
+        <div class="quiz-option" data-value="Other Brick & Mortar">
+          <span class="quiz-option-letter">E</span>
+          <span class="quiz-option-text">Other Brick & Mortar<span class="quiz-option-sub">Law, accounting, real estate, entertainment</span></span>
+        </div>
+      </div>
+      <div class="quiz-nav">
+        <div></div>
+        <button class="quiz-btn-next" id="next1" disabled onclick="nextStep(1)">
+          Next Question
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+      <div class="quiz-trust">
+        <div class="trust-item"><div class="trust-dot"></div>Takes 60 seconds</div>
+        <div class="trust-item"><div class="trust-dot"></div>100% Free</div>
+        <div class="trust-item"><div class="trust-dot"></div>No credit card</div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Current Ranking -->
+    <div class="quiz-step" id="step2">
+      <div class="quiz-step-num">Question 2 of 3</div>
+      <h2 class="quiz-question">Where do you<br>show up right now?</h2>
+      <p class="quiz-subtext">Search your business type + city on Google Maps. What do you see?</p>
+      <div class="quiz-options" id="options2">
+        <div class="quiz-option" data-value="Top 3 on Google Maps">
+          <span class="quiz-option-letter">A</span>
+          <span class="quiz-option-text">Top 3 on Google Maps<span class="quiz-option-sub">I'm in the "Map Pack" — the 3 results above organic</span></span>
+        </div>
+        <div class="quiz-option" data-value="Page 1 but not top 3">
+          <span class="quiz-option-letter">B</span>
+          <span class="quiz-option-text">Page 1 but not top 3<span class="quiz-option-sub">I show up, but I'm below the main 3 results</span></span>
+        </div>
+        <div class="quiz-option" data-value="Buried on page 2 or beyond">
+          <span class="quiz-option-letter">C</span>
+          <span class="quiz-option-text">Buried on page 2 or beyond<span class="quiz-option-sub">Customers have to really search to find me</span></span>
+        </div>
+        <div class="quiz-option" data-value="Not showing up at all">
+          <span class="quiz-option-letter">D</span>
+          <span class="quiz-option-text">Not showing up at all<span class="quiz-option-sub">I don't see my business in Maps results</span></span>
+        </div>
+        <div class="quiz-option" data-value="Not sure">
+          <span class="quiz-option-letter">E</span>
+          <span class="quiz-option-text">Not sure<span class="quiz-option-sub">I've never checked my Google Maps ranking</span></span>
+        </div>
+      </div>
+      <div class="quiz-nav">
+        <button class="quiz-btn-back" onclick="prevStep(2)">← Back</button>
+        <button class="quiz-btn-next" id="next2" disabled onclick="nextStep(2)">
+          Last Step
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Contact Info -->
+    <div class="quiz-step" id="step3">
+      <div class="quiz-step-num">Question 3 of 3 — Almost done</div>
+      <h2 class="quiz-question">Where should<br>we send it?</h2>
+      <p class="quiz-subtext">We'll send your free analysis within 24 hours. No spam, no retainers, no pressure.</p>
+
+      <!-- Netlify Form -->
+      <form
+        name="free-analysis"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        id="quizForm"
+        class="quiz-form"
+      >
+        <input type="hidden" name="form-name" value="free-analysis" />
+        <input type="hidden" name="business_type" id="hiddenBusinessType" />
+        <input type="hidden" name="current_ranking" id="hiddenRanking" />
+        <p style="display:none;"><input name="bot-field" /></p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="firstName">First Name</label>
+            <input class="form-input" type="text" id="firstName" name="first_name" placeholder="Gio" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lastName">Last Name</label>
+            <input class="form-input" type="text" id="lastName" name="last_name" placeholder="Hernandez" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="businessName">Business Name</label>
+          <input class="form-input" type="text" id="businessName" name="business_name" placeholder="Los Cabos Mexican Grill" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="city">City & State</label>
+          <input class="form-input" type="text" id="city" name="city" placeholder="Sealy, TX" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input class="form-input" type="tel" id="phone" name="phone" placeholder="(979) 555-0100" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input class="form-input" type="email" id="email" name="email" placeholder="you@yourbusiness.com" required />
+          </div>
+        </div>
+
+        <p class="quiz-fine-print">By submitting, you agree to be contacted by SupraReach Marketing. We don't sell your info or spam you. Ever.</p>
+
+        <div class="quiz-nav">
+          <button type="button" class="quiz-btn-back" onclick="prevStep(3)">← Back</button>
+          <button type="submit" class="quiz-btn-next" id="submitBtn">
+            Get My Free Analysis
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="quiz-success" id="quizSuccess">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2 class="success-headline">YOU'RE<br><span class="r">ALL SET.</span></h2>
+      <p class="success-body">We got your info and we're already pulling your analysis. Expect to hear from us within 24 hours — usually much sooner.</p>
+      <a href="/" class="success-back">
+        ← Back to SupraReach
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const answers = { businessType: '', ranking: '' };
+const steps = [null, 1, 2, 3];
+let current = 1;
+
+function updateProgress(step) {
+  const pct = ((step - 1) / 3) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = step <= 3 ? `Step ${step} of 3` : 'Complete';
+}
+
+// Option selection
+document.querySelectorAll('#options1 .quiz-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#options1 .quiz-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    answers.businessType = opt.dataset.value;
+    document.getElementById('next1').disabled = false;
+  });
+});
+
+document.querySelectorAll('#options2 .quiz-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#options2 .quiz-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    answers.ranking = opt.dataset.value;
+    document.getElementById('next2').disabled = false;
+  });
+});
+
+function nextStep(from) {
+  document.getElementById('step' + from).classList.remove('active');
+  const next = from + 1;
+  document.getElementById('step' + next).classList.add('active');
+  current = next;
+  updateProgress(next);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(from) {
+  document.getElementById('step' + from).classList.remove('active');
+  const prev = from - 1;
+  document.getElementById('step' + prev).classList.add('active');
+  current = prev;
+  updateProgress(prev);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Form submit
+document.getElementById('quizForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  document.getElementById('hiddenBusinessType').value = answers.businessType;
+  document.getElementById('hiddenRanking').value = answers.ranking;
+
+  const formData = new FormData(e.target);
+
+  try {
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString()
+    });
+  } catch(err) { /* still show success */ }
+
+  document.getElementById('step3').classList.remove('active');
+  document.getElementById('quizSuccess').classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = 'Complete!';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Init
+updateProgress(1);
+</script>
+
+</BaseLayout>
