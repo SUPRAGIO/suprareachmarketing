@@ -454,7 +454,7 @@ body { background: var(--black) !important; }
       </div>
       <div class="quiz-nav">
         <div></div>
-        <button class="quiz-btn-next" id="next1" disabled onclick="nextStep(1)">
+        <button class="quiz-btn-next" id="next1" disabled>
           Next Question
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
         </button>
@@ -494,8 +494,8 @@ body { background: var(--black) !important; }
         </div>
       </div>
       <div class="quiz-nav">
-        <button class="quiz-btn-back" onclick="prevStep(2)">← Back</button>
-        <button class="quiz-btn-next" id="next2" disabled onclick="nextStep(2)">
+        <button class="quiz-btn-back" data-back="2">← Back</button>
+        <button class="quiz-btn-next" id="next2" disabled>
           Last Step
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
         </button>
@@ -557,7 +557,7 @@ body { background: var(--black) !important; }
         <p class="quiz-fine-print">By submitting, you agree to be contacted by SupraReach Marketing. We don't sell your info or spam you. Ever.</p>
 
         <div class="quiz-nav">
-          <button type="button" class="quiz-btn-back" onclick="prevStep(3)">← Back</button>
+          <button type="button" class="quiz-btn-back" data-back="3">← Back</button>
           <button type="submit" class="quiz-btn-next" id="submitBtn">
             Get My Free Analysis
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -628,6 +628,14 @@ function prevStep(from) {
   updateProgress(prev);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Wire up next/back buttons
+document.getElementById('next1').addEventListener('click', () => nextStep(1));
+document.getElementById('next2').addEventListener('click', () => nextStep(2));
+document.getElementById('submitBtn') && null; // submit handled by form
+document.querySelectorAll('[data-back]').forEach(btn => {
+  btn.addEventListener('click', () => prevStep(parseInt(btn.dataset.back)));
+});
 
 // Form submit
 document.getElementById('quizForm').addEventListener('submit', async (e) => {
